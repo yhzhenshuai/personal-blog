@@ -154,6 +154,6 @@ function renderMarkdown(content: string): string {
     // 清理空段落
     .replace(/<p class="mt-4"><\/p>/g, '')
     .replace(/<p class="mt-4">(<h[123].*?<\/h[123]>)<\/p>/g, '$1')
-    .replace(/<p class="mt-4">(<pre.*?>.*?<\/pre>)<\/p>/gs, '$1')
+    .replace(/<p class="mt-4">(<pre[\s\S]*?<\/pre>)<\/p>/g, '$1')
     .replace(/<p class="mt-4">(<li.*?>.*?<\/li>)<\/p>/g, '$1')
 }
