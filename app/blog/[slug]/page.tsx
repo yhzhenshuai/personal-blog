@@ -1,9 +1,5 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { MDXRemote } from 'next-mdx-remote/rmdr-serialization'
-import { serialize } from 'next-mdx-remote/serialize'
-import remarkGfm from 'remark-gfm'
-import rehypeHighlight from 'rehype-highlight'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { getAllPosts, getPostBySlug } from '@/lib/posts'
@@ -39,13 +35,6 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post) {
     notFound()
   }
-
-  const mdxSource = await serialize(post.content, {
-    mdxOptions: {
-      remarkPlugins: [remarkGfm],
-      rehypePlugins: [rehypeHighlight],
-    },
-  })
 
   const categoryLabels: Record<string, string> = {
     daily: '日常',
@@ -116,9 +105,10 @@ export default async function BlogPostPage({ params }: Props) {
         </header>
 
         {/* Article Content */}
-        <article className="prose prose-lg max-w-none">
-          <MDXRemote {...mdxSource} />
-        </article>
+        <article
+          className="prose prose-lg max-w-none prose-headings:text-slate-900 prose-headings:dark:text-white prose-p:text-slate-700 prose-p:dark:text-slate-300 prose-a:text-primary-600 prose-a:dark:text-primary-400 prose-strong:text-slate-900 prose-strong:dark:text-white prose-code:text-pink-600 prose-code:dark:text-pink-400 prose-pre:bg-slate-900 prose-pre:dark:bg-slate-950"
+          dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }}
+        />
 
         {/* Article Footer */}
         <footer className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
@@ -136,4 +126,34 @@ export default async function BlogPostPage({ params }: Props) {
       </div>
     </div>
   )
+}
+
+// 简单的 Markdown 转 HTML 函数
+function renderMarkdown(content: string): string {
+  return content
+    // 代码块
+    .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="p-4 rounded-lg overflow-x-auto"><code>$2</code></pre>')
+    // 行内代码
+    .replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-sm">$1</code>')
+    // 标题
+    .replace(/^### (.*$)/gim, '<h3 class="text-xl font-bold mt-6 mb-3">$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold mt-8 mb-4">$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold mt-8 mb-4">$1</h1>')
+    // 粗体
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // 斜体
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // 链接
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary-600 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>')
+    // 列表
+    .replace(/^\- (.*$)/gim, '<li class="ml-4">$1</li>')
+    // 段落
+    .replace(/\n\n/g, '</p><p class="mt-4">')
+    // 包装在段落中
+    .replace(/^(.+)$/gim, '<p class="mt-4">$1</p>')
+    // 清理空段落
+    .replace(/<p class="mt-4"><\/p>/g, '')
+    .replace(/<p class="mt-4">(<h[123].*?<\/h[123]>)<\/p>/g, '$1')
+    .replace(/<p class="mt-4">(<pre.*?>.*?<\/pre>)<\/p>/gs, '$1')
+    .replace(/<p class="mt-4">(<li.*?>.*?<\/li>)<\/p>/g, '$1')
 }
