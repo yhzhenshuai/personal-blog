@@ -1,0 +1,109 @@
+---
+title: "Next.js 开发环境配置指南"
+date: "2024-01-20"
+category: "config"
+tags: ["Next.js", "TypeScript", "Tailwind CSS", "配置"]
+excerpt: "详细介绍如何配置 Next.js + TypeScript + Tailwind CSS 的开发环境，包含常见问题解决方案。"
+---
+
+# Next.js 开发环境配置指南
+
+Next.js 是一个非常流行的 React 框架，提供了服务端渲染、静态生成等功能。本文将介绍如何配置一个完整的 Next.js 开发环境。
+
+## 创建项目
+
+使用 `create-next-app` 创建新项目：
+
+```bash
+npx create-next-app@latest my-app --typescript --tailwind --eslint
+```
+
+## 目录结构
+
+一个典型的 Next.js 项目结构如下：
+
+```
+my-app/
+├── app/                 # App Router (Next.js 13+)
+│   ├── layout.tsx       # 根布局
+│   ├── page.tsx         # 首页
+│   └── globals.css      # 全局样式
+├── components/          # 组件
+├── lib/                 # 工具函数
+├── public/              # 静态资源
+├── next.config.js       # Next.js 配置
+├── tailwind.config.ts   # Tailwind 配置
+└── tsconfig.json        # TypeScript 配置
+```
+
+## 配置 Tailwind CSS
+
+在 `tailwind.config.ts` 中：
+
+```typescript
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  darkMode: 'class',
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+
+export default config
+```
+
+## 常见问题
+
+### 1. 图片加载问题
+
+使用 `next/image` 组件优化图片加载：
+
+```tsx
+import Image from 'next/image'
+
+<Image
+  src="/image.jpg"
+  alt="Description"
+  width={800}
+  height={600}
+/>
+```
+
+### 2. 字体优化
+
+Next.js 内置字体优化：
+
+```tsx
+import { Inter } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'] })
+```
+
+### 3. 环境变量
+
+创建 `.env.local`：
+
+```
+NEXT_PUBLIC_API_URL=https://api.example.com
+DATABASE_URL=postgres://...
+```
+
+使用 `NEXT_PUBLIC_` 前缀的变量会在客户端暴露。
+
+## 部署
+
+推荐使用 Vercel 部署：
+
+```bash
+npm i -g vercel
+vercel
+```
+
+这样就完成了 Next.js 开发环境的配置！
